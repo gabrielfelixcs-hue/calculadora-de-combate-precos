@@ -5,7 +5,7 @@ Uma solução automatizada desenvolvida em **Google Apps Script** e integrada co
 ---
 
 ## 💼 O Problema de Negócio Resolvido
-Em processos tradicionais de tintometria, quando um cliente pede um desconto com base no preço do concorrente, os sistemas reduzem o valor apenas sobre a **base** da tinta, o que destrói a margem de lucro do produto principal ou gera prejuízos localizados. 
+Em processos tradicionais de tintometria, quando um cliente pede um desconto com base no preço do concorrente, os sistemas reduzem o valor apenas sobre a **base** da tinta, o que destrói a margem de lucro do produto principal ou gera prejuízos localizados.
 
 Esta calculadora resolve isso aplicando um **fator de redução global e proporcional**. Ela calcula o custo combinado da base + até 5 corantes e aplica o desconto igualmente sobre todos os componentes da fórmula até atingir o preço ideal (1% mais barato que o concorrente), protegendo a inteligência financeira do negócio.
 
