@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f9; color: #333; padding: 20px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 750px; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 25px; font-weight: 600; }
+        .section { background: #f8fbff; border: 1px solid #e1e8ed; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .section-title { font-weight: bold; font-size: 14px; color: #1a73e8; margin-bottom: 15px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+        .corante-title { color: #34a853; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #5f6368; margin-bottom: 5px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #dadce0; border-radius: 6px; box-sizing: border-box; font-size: 14px; transition: border 0.3s; }
+        input:focus { border-color: #1a73e8; outline: none; }
+        input[readonly] { background-color: #f1f3f4; color: #5f6368; cursor: not-allowed; }
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .desc-col { grid-column: span 2; }
+        .item-row { border-left: 4px solid #1a73e8; padding-left: 15px; margin-bottom: 10px; }
+        .corante-row { border-left-color: #34a853; padding-top: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .btn-calc { width: 100%; padding: 16px; background-color: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px; }
+        .btn-calc:hover { background-color: #1557b0; }
+        .result-box { margin-top: 25px; padding: 20px; border: 2px solid #34a853; border-radius: 10px; background-color: #f0f9f1; display: none; }
+        .btn-transfer { width: 100%; padding: 14px; background-color: #34a853; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: opacity 0.3s; }
+        .btn-transfer:disabled { opacity: 0.6; cursor: not-allowed; }
+        .box-subtitulo { font-size: 11px; color:#666; font-style: italic; margin-top: -10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body onload="carregarZonas()">
+
+<div class="app-container">
+    <h2>Calculadora de Combate V3</h2>
+
+    <div class="section">
+        <label>Selecione a Zona (Estado)</label>
+        <select id="zonaSel">
+            <option value="">Carregando zonas...</option>
+        </select>
+        
+        <label style="margin-top: 10px;">Nome da Cor (Obrigatório)</label>
+        <input type="text" id="nomeCorInput" placeholder="Ex: Verde Broto / Azul Celestial">
+    </div>
+
+    <div class="section">
+        <span class="section-title">Dados da Base</span>
+        <div class="item-row" id="bloco-base">
+            <div class="row-grid">
+                <div>
+                    <label>LM Base</label>
+                    <input type="text" class="campo-lm" placeholder="Ex: 89082413" onblur="buscarManual(this)">
+                </div>
+                <div class="desc-col">
+                    <label>Descrição</label>
+                    <input type="text" class="campo-desc" readonly>
+                </div>
+            </div>
+            <div class="row-grid">
+                <div>
+                    <label>Venda Orig. (R$)</label>
+                    <input type="number" class="campo-pv" step="0.01" readonly>
+                </div>
+                <div>
+                    <label>Margem %</label>
+                    <input type="number" class="campo-mg" step="0.01" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <span class="section-title corante-title">Colorantes da Fórmula</span>
+        <div class="box-subtitulo">Preencha até 5 corantes se necessário. Deixe em branco os que não usar.</div>
+        <div id="container-corantes">
+            <script>
+              
+                for(let i=1; i<=5; i++) {
+                    document.write(`
+                        <div class="item-row corante-row">
+                            <div class="row-grid">
+                                <div>
+                                    <label>LM Corante ${i}</label>
+                                    <input type="text" class="campo-lm" onblur="buscarManual(this)">
+                                </div>
+                                <div class="desc-col">
+                                    <label>Descrição</label>
+                                    <input type="text" class="campo-desc" readonly>
+                                </div>
+                            </div>
+                            <div class="row-grid">
+                                <div>
+                                    <label>ML na Cor</label>
+                                    <input type="number" class="campo-ml" placeholder="0" value="0">
+                                </div>
+                                <div>
+                                    <label>Venda/ML Orig.</label>
+                                    <input type="number" class="campo-pv" step="0.0001" readonly>
+                                </div>
+                                <div>
+                                    <label>Margem %</label>
+                                    <input type="number" class="campo-mg" step="0.01" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+            </script>
+        </div>
+    </div>
+
+    <div class="section">
+        <label>Preço do Concorrente (R$)</label>
+        <input type="number" id="pConc" step="0.01" placeholder="0,00">
+        <button class="btn-calc" onclick="calcular()">GERAR PREÇOS MAIS BARATOS (PROPORCIONAL)</button>
+    </div>
+
+    <div class="result-box" id="resultado">
+        <div id="detalhesResultado"></div>
+        <button id="btnTransferir" class="btn-transfer" onclick="transferirDados()">TRANSFERIR PARA PLANILHA</button>
+    </div>
+</div>
+
+<script>
+    let dadosParaSalvar = null;
+
+    const deParaEstados = {
+        "AL": "Alagoas (AL)",
+        "SC": "Santa Catarina (SC)",
+        "RN": "Rio Grande do Norte (RN)",
+        "RS": "Rio Grande do Sul (RS)",
+        "RJ": "Rio de Janeiro (RJ)",
+        "RIB": "São Paulo Interior (RIB)",
+        "PR": "Paraná (PR)",
+        "SP": "São Paulo Capital (SP)",
+        "MS": "Mato Grosso do Sul (MS)",
+        "LOND": "Londrina (LOND)",
+        "MG": "Minas Gerais (MG)",
+        "GO": "Goiás (GO)",
+        "ES": "Espírito Santo (ES)",
+        "DF": "Distrito Federal (DF)",
+        "BA": "Bahia (BA)",
+        "CE": "Ceará (CE)"
+    };
+
+    function carregarZonas() {
+        google.script.run.withSuccessHandler(function(zonas) {
+            const select = document.getElementById('zonaSel');
+            select.innerHTML = '<option value="">Escolha um Estado</option>';
+            zonas.forEach(function(z) {
+                let opt = document.createElement('option');
+                opt.value = z;
+                opt.text = deParaEstados[z] || z;
+                select.add(opt);
+            });
+        }).listarZonas();
+    }
+
+    function buscarManual(inputLM) {
+        const lm = inputLM.value.trim();
+        const zona = document.getElementById('zonaSel').value;
+        
+        if (!lm || !zona) return;
+
+        const container = inputLM.closest('.item-row');
+        const campoDesc = container.querySelector('.campo-desc');
+        
+        campoDesc.value = "Buscando...";
+
+        google.script.run
+            .withSuccessHandler(function(res) {
+                if (res && !res.erro) {
+                    campoDesc.value = res.descricao;
+                    container.querySelector('.campo-pv').value = res.precoVenda;
+                    container.querySelector('.campo-mg').value = res.margem.toFixed(2);
+                } else {
+                    campoDesc.value = "Não encontrado";
+                    container.querySelector('.campo-pv').value = "";
+                    container.querySelector('.campo-mg').value = "";
+                }
+            })
+            .buscarDadosCompletos(lm, zona);
+    }
+
+    function calcular() {
+        const nomeCor = document.getElementById('nomeCorInput').value.trim();
+        if (!nomeCor) { alert("Por favor, preencha o Nome da Cor antes de calcular."); return; }
+
+        const pConc = parseFloat(document.getElementById('pConc').value) || 0;
+        if (pConc <= 0) { alert("Informe o preço do concorrente"); return; }
+
+        const precoAlvoTotal = pConc * 0.99; 
+      
+    
+        const baseRow = document.getElementById('bloco-base');
+        const lmBase = baseRow.querySelector('.campo-lm').value.trim();
+        const pvBaseOriginal = parseFloat(baseRow.querySelector('.campo-pv').value) || 0;
+        
+        if (!lmBase || pvBaseOriginal === 0) { alert("Carregue o LM da Base corretamente antes de calcular."); return; }
+
+        let precoVendaFórmulaOriginal = pvBaseOriginal;
+        let corantesAtivos = [];
+        
+        document.querySelectorAll('.corante-row').forEach(function(row) {
+            const lmCorante = row.querySelector('.campo-lm').value.trim();
+            const ml = parseFloat(row.querySelector('.campo-ml').value) || 0;
+            const pvMLOriginal = parseFloat(row.querySelector('.campo-pv').value) || 0;
+
+            if (lmCorante && ml > 0 && pvMLOriginal > 0) {
+                const custoCoranteNestaCor = ml * pvMLOriginal;
+                precoVendaFórmulaOriginal += custoCoranteNestaCor;
+                
+                corantesAtivos.push({
+                    lm: lmCorante,
+                    ml: ml,
+                    pvMLOriginal: pvMLOriginal
+                });
+            }
+        });
+
+   
+        const fatorProporcional = precoAlvoTotal / precoVendaFórmulaOriginal;
+
+
+        const novoPrecoBase = (pvBaseOriginal * fatorProporcional).toFixed(2);
+        
+        let resumoHTML = `
+            <p style="margin:0 0 10px 0; color:#34a853; font-weight:bold; font-size:15px;">
+                PREÇO ALVO DA FÓRMULA (-1%): R$ ${precoAlvoTotal.toFixed(2)}
+            </p>
+            <p style="font-size:13px; margin:4px 0;">• Nova Base Venda: <b>R$ ${novoPrecoBase}</b> <span style="color:#777">(Original: R$ ${pvBaseOriginal.toFixed(2)})</span></p>
+        `;
+
+        let corantesParaSalvar = [];
+
+        corantesAtivos.forEach(function(c) {
+            const novoPrecoML = (c.pvMLOriginal * fatorProporcional);
+            const totalDoCoranteSugerido = (novoPrecoML * c.ml).toFixed(2);
+            
+            resumoHTML += `
+                <p style="font-size:13px; margin:4px 0;">
+                    • Corante LM ${c.lm}: <b>R$ ${novoPrecoML.toFixed(4)}/ml</b> 
+                    <span style="color:#777">(Total na cor: R$ ${totalDoCoranteSugerido})</span>
+                </p>
+            `;
+
+            corantesParaSalvar.push({
+                lm: c.lm,
+                novoPrecoML: novoPrecoML.toFixed(4)
+            });
+        });
+
+    
+        dadosParaSalvar = {
+            zona: document.getElementById('zonaSel').value,
+            nomeCor: nomeCor,
+            pConc: pConc.toFixed(2),
+            precoAlvo: precoAlvoTotal.toFixed(2),
+            lmBase: lmBase,
+            precoBaseSugerido: novoPrecoBase,
+            corantesLista: corantesParaSalvar 
+        };
+
+        document.getElementById('detalhesResultado').innerHTML = resumoHTML;
+        document.getElementById('resultado').style.display = 'block';
+    }
+
+    function transferirDados() {
+        const btn = document.getElementById('btnTransferir');
+        btn.disabled = true;
+        btn.innerText = "TRANSFERINDO...";
+
+        google.script.run.withSuccessHandler(function(msg) {
+            alert(msg);
+            btn.innerText = "TRANSFERIR PARA PLANILHA";
+            btn.disabled = false;
+            // Reseta campos voláteis após sucesso
+            document.getElementById('nomeCorInput').value = "";
+            document.getElementById('pConc').value = "";
+            document.getElementById('resultado').style.display = 'none';
+        }).salvarNaPlanilha(dadosParaSalvar);
+    }
+</script>
+
+</body>
+</html>
