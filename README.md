@@ -26,7 +26,7 @@ Abaixo está a interface visual responsiva criada para o operador de loja:
 
 ### 2. Visão Completa dos Campos de Fórmulas
 Campos dinâmicos para preenchimento de até 5 corantes simultâneos com busca de margem original:
-![Estrutura de Corantes](Print2.png)
+![Estrutura de Corantes](Print2.png) 
 
 ### 3. Banco de Dados Estruturado (Google Sheets)
 Os logs gerados após o clique no botão de cálculo, organizando perfeitamente a auditoria por colunas separadas:
